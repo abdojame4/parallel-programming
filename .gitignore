@@ -1,0 +1,6 @@
+.venv
+*.pt
+annotation.zip
+annotation
+dataset/images/val/*
+image
