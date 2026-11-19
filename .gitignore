@@ -1,6 +1,4 @@
+__pycache__
 .venv
 *.pt
-annotation.zip
-annotation
-dataset/images/val/*
-image
+data/images/*

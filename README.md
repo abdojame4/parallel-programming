@@ -18,3 +18,15 @@ source .venv/bin/activate # macos and linux
 ```sh
 pip install -r requirements.txt
 ```
+
+### download dataset
+
+```sh
+python extract.py
+```
+
+### run test
+```sh
+python sequential.py <image-count>
+python parallel.py <image-count> <core-count>
+```
