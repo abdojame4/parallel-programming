@@ -22,7 +22,7 @@ pip install -r requirements.txt
 ### download dataset
 
 ```sh
-python extract.py
+python extract.py <image-count> # max 5000
 ```
 
 ### run test

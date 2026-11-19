@@ -1,5 +1,6 @@
 import json
 import random
+import sys
 import requests
 from pathlib import Path
 
@@ -10,7 +11,8 @@ images = [img for img in coco_annotations["images"]]
 
 random.seed(0)
 random.shuffle(images)
-subset = images[:500]
+image_count = int(sys.argv[1])
+subset = images[:image_count]
 
 for img in subset:
     file_name = img["file_name"]
