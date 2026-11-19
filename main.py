@@ -6,7 +6,7 @@ def init_model():
 
     model = YOLO("yolo26n.pt")
     
-    results = model("images")
+    results = model("dataset/images/val")
 
     for r in results:
         r.show()
