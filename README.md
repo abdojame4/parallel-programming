@@ -25,11 +25,22 @@ pip install -r requirements.txt
 python extract.py <image-count> # default 500, max 5000
 ```
 
-### run test
+### run detection
+
+`sequential.py` processes the requested number of sorted images from
+`data/images/`.
+`parallel.py` processes all `.jpg`, `.jpeg`, and `.png` files there.
+
 ```sh
-python sequential.py <image-count>
-python parallel.py <image-count> <core-count>
+python sequential.py
+python sequential.py --image-count 25
+python parallel.py --workers 2
 ```
+
+Sequential processing defaults to 10 images; use `--image-count` to change it.
+The parallel command's `--workers` option defaults to 2. Both scripts use
+`yolo26n.pt` on CPU with `imgsz=640` and `conf=0.25`, as configured in
+`model_init.py`.
 
 ### run benchmarks
 

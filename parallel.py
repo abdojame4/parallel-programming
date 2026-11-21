@@ -1,34 +1,51 @@
 import argparse
 import multiprocessing as mp
 import os
+import time
+from pathlib import Path
 
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 
-from glob import glob
 import model_init
-from time import perf_counter
-from multiprocessing import Pool
 
-parser = argparse.ArgumentParser(description="Run parallel YOLO detection.")
-parser.add_argument("image_count", type=int)
-parser.add_argument("core_count", type=int)
-args = parser.parse_args()
 
-if args.image_count < 1:
-    parser.error("image_count must be at least 1")
-if args.core_count < 1:
-    parser.error("core_count must be at least 1")
+def main():
+    parser = argparse.ArgumentParser(description="Run parallel YOLO detection.")
+    parser.add_argument("--workers", type=int, default=2)
+    args = parser.parse_args()
 
-images = sorted(glob("data/images/*.jpg"))[:args.image_count]
+    if args.workers < 1:
+        parser.error("--workers must be at least 1")
+
+    image_dir = Path("data/images")
+    if not image_dir.is_dir():
+        parser.error(f"image directory not found: {image_dir}")
+
+    images = sorted(
+        path for path in image_dir.iterdir()
+        if path.suffix.lower() in {".jpg", ".jpeg", ".png"}
+    )
+    print(f"Images: {len(images)}")
+    print(f"Workers: {args.workers}")
+    if not images:
+        print("No images found.")
+        return
+
+    start = time.perf_counter()
+    context = mp.get_context("spawn")
+    with context.Pool(
+        processes=args.workers,
+        initializer=model_init.init_model,
+    ) as pool:
+        counts = pool.map(model_init.detect, images, chunksize=1)
+    elapsed = time.perf_counter() - start
+
+    for image, count in zip(images, counts):
+        print(f"{image.name}: {count} objects")
+    print(f"Total time: {elapsed:.2f} seconds")
+
 
 if __name__ == "__main__":
-    context = mp.get_context("spawn")
-    with context.Pool(args.core_count, model_init.init_model) as pool:
-        t0 = perf_counter()
-        counts = pool.map(model_init.detect, images, chunksize=1)
-        t1 = perf_counter() - t0
-        for image, count in zip(images, counts):
-            print(f"{os.path.basename(image)}: {count} objects")
-        print(t1)
+    main()
